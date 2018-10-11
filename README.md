@@ -1,4 +1,4 @@
-#SCORM Adapter
+# SCORM Adapter
 
 ## Installation
 
