@@ -1,5 +1,6 @@
-import axios from 'axios';
+import $ from 'jquery';
 import { Base64 } from 'js-base64';
+import Storage from './storage';
 import errorDefinition from './errors';
 
 export default class SCORMAdapter {
@@ -8,7 +9,7 @@ export default class SCORMAdapter {
   }
 
   LMSInitialize() {
-    window.localStorage.setItem('Initialized', true);
+    Storage.setItem('Initialized', true);
     return true;
   }
 
@@ -17,12 +18,18 @@ export default class SCORMAdapter {
       this._setError(301);
       return false;
     }
-    window.localStorage.setItem('Initialized', false);
-    return true;
+    let _return = this.LMSCommit();
+    Storage.setItem('Initialized', false);
+    Storage.clearAll();
+    return _return;
   }
 
   LMSGetValue(element) {
-    let value = window.localStorage.getItem(element);
+    if (!this._isInitialized()) {
+      this._setError(301);
+      return false;
+    }
+    let value = Storage.getItem(element);
     if (!value) {
       this._setError(201);
       return "";
@@ -31,29 +38,43 @@ export default class SCORMAdapter {
   }
 
   LMSSetValue(element, value) {
-    window.localStorage.setItem(element, value);
-    return window.localStorage.getItem(element);
-  }
-
-  async LMSCommit() {
-    let data = window.localStorage;
-    data = JSON.stringify(data);
-    data = Base64.encode(data);
-    let response = await axios.post(this.uri, {
-      data,
-      transformResponse: [res => {
-        return JSON.parse(res);
-      }]
-    });
-    if (!response.success) {
-      this._setError(10);
+    if (!this._isInitialized()) {
+      this._setError(301);
       return false;
     }
-    return true;
+    Storage.setItem(element, value);
+    return Storage.getItem(element);
+  }
+
+  LMSCommit() {
+    let data = Storage.getAll();
+    delete data['errors'];
+    delete data['Initialized'];
+    data = JSON.stringify(data);
+    data = Base64.encode(data);
+    let response;
+    let _return = true;
+    $.post({
+      url: this.uri,
+      async: false,
+      data: { data, success: true },
+      success: res => {
+        response = res;
+      },
+      error: () => {
+        this._setError(101);
+        _return = false;
+      }
+    });
+    if (!response.success) {
+      this._setError(101);
+      return false;
+    }
+    return _return;
   }
 
   LMSGetLastError() {
-    let errors = window.localStorage.getItem('errors');
+    let errors = Storage.getItem('errors');
     errors = JSON.parse(errors);
     if (errors && errors.length > 0) {
       return errors.pop();
@@ -76,17 +97,17 @@ export default class SCORMAdapter {
   }
 
   _isInitialized() {
-    let initialized = window.localStorage.getItem('Initialized');
-    return initialized === 'true';
+    let initialized = Storage.getItem('Initialized');
+    return initialized;
   }
 
   _setError(errorCode) {
     errorCode = errorCode.toString();
-    let errors = window.localStorage.getItem('errors');
+    let errors = Storage.getItem('errors');
     if (!errors) errors = '[]';
     errors = JSON.parse(errors);
     errors.push(errorCode);
     errors = JSON.stringify(errors);
-    window.localStorage.setItem('errors', errors);
+    Storage.setItem('errors', errors);
   }
 }
