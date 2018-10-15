@@ -59,9 +59,9 @@ export default class SCORMAdapter {
     let response;
     let _return = true;
     $.post({
-      url: this.uri,
+      url: this.apiURL,
       async: false,
-      data: { data, success: true },
+      data: { data },
       success: res => {
         response = res;
       },
