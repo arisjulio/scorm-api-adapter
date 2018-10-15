@@ -1,11 +1,12 @@
 {
   "name": "scorm-api-adapter",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Simple SCORM API Adapter Implementation.",
-  "main": "src/index.js",
+  "main": "src/scormAdapter.js",
   "scripts": {
-    "compile-test": "webpack --mode production --config webpack.config.js --watch",
-    "test-on-browser": "serve test -p 8080"
+    "compile": "webpack --mode production --config webpack/dist.js",
+    "compile-test": "webpack --mode development --config webpack/test.js --watch",
+    "test-on-browser": "serve -p 8080"
   },
   "repository": {
     "type": "git",

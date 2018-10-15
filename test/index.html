@@ -1,11 +1,42 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf8">
-    <title>SCORM Adapter Test</title>
-  </head>
-  <body>
-    <h1>Open your console!</h1>
-    <script src="index-compiled.js"></script>
-  </body>
+
+<head>
+  <meta charset="utf8">
+  <title>SCORM Adapter Test</title>
+  <script src='index-compiled.js'></script>
+</head>
+
+<body>
+  <h1>Open your console!</h1>
+  <script>
+    window.API.uri = 'https://reqres.in/api/users';
+
+    let LMSInitialize = API.LMSInitialize();
+    console.log('LMSInitialize', LMSInitialize);
+
+    let LMSGetValue = API.LMSGetValue('Initialized');
+    console.log('LMSGetValue', LMSGetValue);
+
+    let LMSSetValue = API.LMSSetValue('Holi', ':3');
+    console.log('LMSSetValue', LMSSetValue);
+
+    let LMSCommit = API.LMSCommit();
+    console.log('LMSCommit', LMSCommit);
+
+    API.LMSGetValue('_Initialized');
+    let LMSGetLastError = API.LMSGetLastError();
+    console.log('LMSGetLastError', LMSGetLastError);
+
+    let LMSGetErrorString = API.LMSGetErrorString(LMSGetLastError);
+    console.log('LMSGetErrorString', LMSGetErrorString);
+
+    let LMSGetDiagnostic = API.LMSGetDiagnostic(LMSGetLastError);
+    console.log('LMSGetDiagnostic', LMSGetDiagnostic);
+
+    let LMSFinish = API.LMSFinish();
+    console.log('LMSFinish', LMSFinish);
+  </script>
+</body>
+
 </html>
